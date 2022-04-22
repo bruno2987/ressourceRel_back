@@ -1,6 +1,7 @@
 const express = require('express');
 const helmet = require('helmet')  // module pour la protection contre les attaques XSS
 const mongoose = require('mongoose');
+const path = require('path')
 
 // Ici on import le router de stuff (= trucs: nom qu'on a donnée pour cette partie de notre application)
 //RAPPEL: le . avant le / en début d'URL permet de dire qu'on cherche autre part que dans les modules node (contenu dans node_modules) 
@@ -20,7 +21,29 @@ mongoose.connect('mongodb://localhost:27017/ressourcesRel')
   .catch(() => console.log('Connexion à MongoDB échouée'));
 
 
-app.use(helmet());
+  app.use(helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {},
+    })
+  );
+
+
+/*
+app.use(helmet.contentSecurityPolicy({
+  useDefaults: true,
+  directives: {
+    "default-src": ["'self'"],
+    "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "www.google.com","https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js"], 
+    "style-src": ["'self'", "https://fonts.googleapis.com/"],
+    "connect-src": ["'self'", "'unsafe-inline'"],
+    "frame-src": ["www.google.com"],
+    //"img-src": ["'self'"],
+    "style-src-elem": ["'self'", "https://use.fontawesome.com/", "https://fonts.googleapis.com/"]
+  },
+  })
+);
+*/
+
 
 // Par défaut, si on créé des requête GET ou POST ou autre, le front-end affichera une erreur cors (Cross Origin Ressource Sharing). C'est une protection par défaut qui empêche
 // l'envoi de requête malveillante au serveur par des robot ou autre. Mais ici, on veut que tout le monde puisse avoir accès à l'application.
@@ -38,6 +61,16 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
   });
+
+
+  const history = require('connect-history-api-fallback')
+
+  const staticFileMiddleware = express.static(path.join(__dirname))
+
+
+  app.use(staticFileMiddleware)
+  app.use(history({verbose: true}))
+  app.use(staticFileMiddleware)
 
 // Express.json permet que chaque donné soient traduit en json pour être facilement utilisable
 app.use(express.urlencoded({
