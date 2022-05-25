@@ -15,10 +15,19 @@ const publicRoutes = require('./routes/publicRoutes')
 // on créé l'application qui est l'exécution de express
 const app = express();
 
+/*
 // Connection à la base de données:
 mongoose.connect('mongodb://localhost:27017/ressourcesRel')
   .then(() => console.log('Connexion à MongoDB réussie'))
-  .catch(() => console.log('Connexion à MongoDB échouée'));
+  .catch(() => console.log('Connexion à MongoDB échouée'));*/
+
+// Connection à la base ce données Atlas
+
+mongoose.connect('mongodb+srv://ressourcesRel:ressourceCube2@ressourcerel.bcnpa.mongodb.net/ressourcesRel?retryWrites=true&w=majority',
+  { useNewUrlParser: true,
+    useUnifiedTopology: true })
+  .then(() => console.log('Connexion à MongoDB réussie !'))
+  .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 
   app.use(helmet.contentSecurityPolicy({
@@ -37,12 +46,20 @@ app.use(helmet.contentSecurityPolicy({
     "style-src": ["'self'", "https://fonts.googleapis.com/"],
     "connect-src": ["'self'", "'unsafe-inline'"],
     "frame-src": ["www.google.com"],
-    //"img-src": ["'self'"],
+    "img-src": ["'self'"],
     "style-src-elem": ["'self'", "https://use.fontawesome.com/", "https://fonts.googleapis.com/"]
   },
   })
+);*/
+
+
+app.use(helmet.contentSecurityPolicy({
+  useDefaults: true,
+  directives: {
+    "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "www.google.com","https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js"],
+  },
+  })
 );
-*/
 
 
 // Par défaut, si on créé des requête GET ou POST ou autre, le front-end affichera une erreur cors (Cross Origin Ressource Sharing). C'est une protection par défaut qui empêche
@@ -69,8 +86,8 @@ app.use((req, res, next) => {
 
 
   app.use(staticFileMiddleware)
-  app.use(history({verbose: true}))
-  app.use(staticFileMiddleware)
+  //app.use(history({verbose: true}))
+  //app.use(staticFileMiddleware)
 
 // Express.json permet que chaque donné soient traduit en json pour être facilement utilisable
 app.use(express.urlencoded({
