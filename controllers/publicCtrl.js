@@ -107,3 +107,8 @@ exports.afficheRessourceDeUtilisateur = (req,res,callback) => {
         }
     })
 }
+
+exports.calculcarré = (nombre) => {
+    let resultat = nombre*nombre;
+    return resultat;
+}
